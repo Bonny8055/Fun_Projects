@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aaggrement page</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- External page styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+        
+<body class="bg-gray-900 text-white flex flex-col justify-center items-center min-h-screen p-4 overflow-hidden">
+    
+    <div class="text-center max-w-2xl w-full z-10">
+        <h1 class="text-4xl md:text-6xl font-bold text-pink-500 mb-10 drop-shadow-lg animate-pulse">
+            Will you be my Valentine? 💖
+        </h1>
+            
+        <div class="bg-gray-800/50 p-6 rounded-2xl backdrop-blur-sm mb-12 border border-pink-500/30 shadow-xl">
+            <label class="flex items-center justify-center gap-4 cursor-pointer hover:text-pink-300 transition-colors select-none">
+                <input id="agreeCheckbox" type="checkbox" class="w-6 h-6 accent-pink-500 rounded focus:ring-pink-500" />
+                <span class="text-xl md:text-2xl font-medium">I promise to buy you a MSI GeForce RTX 5090 Gaming Trio OC 🎮</span>
+            </label>
+        </div>
+        
+        <div class="flex flex-col md:flex-row justify-center items-center gap-8 relative h-32">
+            <!-- Yes Button -->
+            <button onclick="sayYes()"
+                class="bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold py-4 px-12 rounded-full shadow-lg text-2xl transform hover:scale-110 transition duration-200 z-10">
+                Yes! 😍
+            </button>
+
+            <!-- No Button (Escapes) -->
+            <button id="escapeButton" onclick="sayNo()"
+                class="bg-red-500 text-white font-bold py-4 px-12 rounded-full shadow-lg text-2xl cursor-not-allowed transition-transform duration-100 ease-out">
+                No 😢
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function sayYes() {
+            const agreeCheckbox = document.getElementById('agreeCheckbox');
+            if (agreeCheckbox && agreeCheckbox.checked) {
+                new Audio('Musics/RTX+Yes.mp3').play();
+
+                document.body.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-screen text-center animate-bounce p-4">
+                        <h1 class="text-6xl md:text-8xl font-bold text-pink-500 mb-6">DOUBLE YAYYY! 🎉💖</h1>
+                        <p class="text-3xl md:text-5xl text-white">You said YES AND promised the RTX 5090! 😍</p>
+                        <p class="text-xl text-gray-400 mt-8">Best Valentine Ever!</p>
+                    </div>
+                `;
+            } else {
+                new Audio('Musics/yes.mp3').play();
+
+                document.body.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-screen text-center animate-bounce p-4">
+                        <h1 class="text-6xl md:text-8xl font-bold text-pink-500 mb-6">YAYYY! 🎉</h1>
+                        <p class="text-3xl md:text-5xl text-white">I knew you'd say yes! ❤️</p>
+                        <p class="text-xl text-gray-400 mt-8">(I'm still waiting for my RTX 5090 though...)</p>
+                    </div>
+                `;
+            }
+        }
+
+        function sayNo() {
+            const agreeCheckbox = document.getElementById('agreeCheckbox');
+            if (agreeCheckbox && agreeCheckbox.checked) {
+                new Audio('Musics/RTX5090+No.mp3').play();
+
+                document.body.innerHTML = `
+                    <div class="bg-gray-800/50 p-6 rounded-2xl backdrop-blur-sm mb-12 border border-pink-500/30 shadow-xl flex flex-col items-center gap-6">                        <h1 class="text-5xl md:text-7xl font-bold text-purple-500 mb-6">It's Okay! 🤝</h1>
+                        <p class="text-2xl md:text-4xl text-white">You said No, but...</p>
+                        <p class="text-3xl md:text-5xl text-green-400 mt-4 font-bold">At least I got an RTX 5090! 🎮😎</p>
+                        
+                    </div>
+                    <div class="flex flex-col items-center gap-3">
+                    <a href="https://mdcomputers.in/product/msi-rtx-5090-gaming-trio-oc-graphics-card-g5090-32gtc" target="_blank" class="text-pink-400 hover:text-pink-300 underline text-lg">here is the link for my RTX 5090</a>
+                </div>
+                `;
+                
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const button = document.getElementById('escapeButton');
+
+            if (!button) {
+                return;
+            }
+            
+            let tx = 0;
+            let ty = 0;
+
+            const interactionRadius = 150;
+
+            function handleMouseMove(event) {
+                const agreeCheckbox = document.getElementById('agreeCheckbox');
+                if (agreeCheckbox && agreeCheckbox.checked) {
+                    tx = 0;
+                    ty = 0;
+                    button.style.transform = 'translate(0, 0)';
+                    return;
+                }
+
+                const rect = button.getBoundingClientRect();
+                const buttonCenterX = rect.left + rect.width / 2;
+                const buttonCenterY = rect.top + rect.height / 2;
+
+                const mouseX = event.clientX;
+                const mouseY = event.clientY;
+
+                const dx = mouseX - buttonCenterX;
+                const dy = mouseY - buttonCenterY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < interactionRadius) {
+                    const force = (interactionRadius - distance) / interactionRadius;
+                    const angle = Math.atan2(dy, dx);
+                    const moveStep = force * 30;
+
+                    tx -= Math.cos(angle) * moveStep;
+                    ty -= Math.sin(angle) * moveStep;
+
+                    // Clamp to viewport
+                    const originalLeft = rect.left - tx;
+                    const originalTop = rect.top - ty;
+                    const padding = 20;
+                    const maxLeft = window.innerWidth - rect.width - padding;
+                    const maxTop = window.innerHeight - rect.height - padding;
+
+                    const newLeft = originalLeft + tx;
+                    const newTop = originalTop + ty;
+
+                    if (newLeft < padding) tx = padding - originalLeft;
+                    else if (newLeft > maxLeft) tx = maxLeft - originalLeft;
+
+                    if (newTop < padding) ty = padding - originalTop;
+                    else if (newTop > maxTop) ty = maxTop - originalTop;
+
+                    button.style.transform = `translate(${tx}px, ${ty}px)`;
+                }
+            }
+
+            // Attach the mousemove listener to the document
+            document.addEventListener('mousemove', handleMouseMove);
+            // Also support touch devices (map first touch to mouse handler)
+            document.addEventListener('touchmove', (ev) => {
+                if (ev.touches && ev.touches[0]) {
+                    handleMouseMove(ev.touches[0]);
+                }
+            }, { passive: true });
+        });
+    </script>
+</body>
+</html>
